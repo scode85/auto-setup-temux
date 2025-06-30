@@ -9,7 +9,7 @@ CYAN='\033[1;36m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-# Định nghĩa URL webhook (thay YOUR_WEBHOOK_URL bằng URL thực tế từ Discord)
+# Định nghĩa URL webhook (đã thay bằng URL bạn cung cấp)
 DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/1389259226500563026/C4NAJkV7FJAqxDYSvrkKaqEwYm8bTZ5fvYzv2kvqOJ-eDOmT4Ph9nweTy_0ZsBg8-sBR"
 
 # Hàm hiển thị hiệu ứng loading
@@ -46,14 +46,15 @@ get_device_ip() {
 send_discord_error() {
     local error_message=$1
     local device_ip=$(get_device_ip)
-    local current_time=$(date +"%I:%M %p %Z, %A, %B %d, %Y")
-    if [ -n "$DISCORD_WEBHOOK_URL" ] && [ "$DISCORD_WEBHOOK_URL" != "YOUR_WEBHOOK_URL" ]; then
-        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" <<EOF > /dev/null 2>&1
+    local device_name=$(hostname || echo "Không xác định")
+    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%I:%M %p, %d/%m/%Y")
+    if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" 2>/dev/null <<EOF
 {
   "embeds": [{
     "title": "❌ Lỗi trong Termux Auto Setup",
     "description": "$error_message",
-    "color": 16711680,  // Màu đỏ (#FF0000)
+    "color": 16711680,
     "fields": [
       {
         "name": "IP Thiết bị",
@@ -61,31 +62,40 @@ send_discord_error() {
         "inline": true
       },
       {
-        "name": "Thời gian",
+        "name": "Tên Thiết bị",
+        "value": "$device_name",
+        "inline": true
+      },
+      {
+        "name": "Thời gian (VN)",
         "value": "$current_time",
         "inline": true
       }
     ],
     "footer": {
-      "text": "Developed by Đặng Gia | Version 1.1 (Beta)"
+      "text": "Developed by Đặng Gia"
     }
   }]
 }
 EOF
+        if [ $? -ne 0 ]; then
+            echo -e "${YELLOW}[⚠] Gửi thông báo lỗi Discord thất bại! Kiểm tra kết nối hoặc webhook.${NC}"
+        fi
     fi
 }
 
 # Hàm gửi thông báo thành công qua Discord webhook với embed đẹp
 send_discord_success() {
     local device_ip=$(get_device_ip)
-    local current_time=$(date +"%I:%M %p %Z, %A, %B %d, %Y")
-    if [ -n "$DISCORD_WEBHOOK_URL" ] && [ "$DISCORD_WEBHOOK_URL" != "YOUR_WEBHOOK_URL" ]; then
-        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" <<EOF > /dev/null 2>&1
+    local device_name=$(hostname || echo "Không xác định")
+    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%I:%M %p, %d/%m/%Y")
+    if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" 2>/dev/null <<EOF
 {
   "embeds": [{
     "title": "✅ Setup Termux Hoàn Tất",
     "description": "Quá trình cài đặt và tải file Scode666.py đã thành công!",
-    "color": 65280,  // Màu xanh (#00FF00)
+    "color": 65280,
     "fields": [
       {
         "name": "IP Thiết bị",
@@ -93,17 +103,25 @@ send_discord_success() {
         "inline": true
       },
       {
-        "name": "Thời gian",
+        "name": "Tên Thiết bị",
+        "value": "$device_name",
+        "inline": true
+      },
+      {
+        "name": "Thời gian (VN)",
         "value": "$current_time",
         "inline": true
       }
     ],
     "footer": {
-      "text": "Developed by Đặng Gia | Version 1.3 (Beta)"
+      "text": "Developed by Đặng Gia"
     }
   }]
 }
 EOF
+        if [ $? -ne 0 ]; then
+            echo -e "${YELLOW}[⚠] Gửi thông báo thành công Discord thất bại! Kiểm tra kết nối hoặc webhook.${NC}"
+        fi
     fi
 }
 
@@ -114,7 +132,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.3           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.1 (Beta)    ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
