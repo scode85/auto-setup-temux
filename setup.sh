@@ -47,7 +47,7 @@ send_discord_error() {
     local error_message=$1
     local device_ip=$(get_device_ip)
     local device_name=$(hostname || echo "Không xác định")
-    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%I:%M %p, %d/%m/%Y")
+    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%H:%M, %d/%m/%Y")
     if [ -n "$DISCORD_WEBHOOK_URL" ]; then
         curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" 2>/dev/null <<EOF
 {
@@ -88,7 +88,7 @@ EOF
 send_discord_success() {
     local device_ip=$(get_device_ip)
     local device_name=$(hostname || echo "Không xác định")
-    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%I:%M %p, %d/%m/%Y")
+    local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%H:%M, %d/%m/%Y")
     if [ -n "$DISCORD_WEBHOOK_URL" ]; then
         curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" 2>/dev/null <<EOF
 {
@@ -132,7 +132,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.1 (Beta)    ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
@@ -196,7 +196,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.3           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}         │${NC}"
