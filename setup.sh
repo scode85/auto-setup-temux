@@ -10,7 +10,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Định nghĩa URL webhook (thay YOUR_WEBHOOK_URL bằng URL thực tế từ Discord)
-DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/1389259226500563026/C4NAJkV7FJAqxDYSvrkKaqEwYm8bTZ5fvYzv2kvqOJ-eDOmT4Ph9nweTy_0ZsBg8-sBR"
+DISCORD_WEBHOOK_URL="YOUR_WEBHOOK_URL"
 
 # Hàm hiển thị hiệu ứng loading
 show_loading() {
@@ -31,11 +31,47 @@ show_status() {
     echo -e "${GREEN}[✅] ${message} hoàn tất!${NC}"
 }
 
-# Hàm gửi thông báo lỗi qua Discord webhook
+# Hàm lấy IP thiết bị
+get_device_ip() {
+    if command -v ifconfig >/dev/null 2>&1; then
+        ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1
+    elif command -v ip >/dev/null 2>&1; then
+        ip addr show | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1
+    else
+        echo "Không xác định"
+    fi
+}
+
+# Hàm gửi thông báo lỗi qua Discord webhook với embed đẹp
 send_discord_error() {
     local error_message=$1
+    local device_ip=$(get_device_ip)
+    local current_time=$(date +"%I:%M %p %Z, %A, %B %d, %Y")
     if [ -n "$DISCORD_WEBHOOK_URL" ] && [ "$DISCORD_WEBHOOK_URL" != "YOUR_WEBHOOK_URL" ]; then
-        curl -H "Content-Type: application/json" -X POST -d "{\"content\": \"[Lỗi] $error_message\"}" "$DISCORD_WEBHOOK_URL" > /dev/null 2>&1
+        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" <<EOF > /dev/null 2>&1
+{
+  "embeds": [{
+    "title": "❌ Lỗi trong Termux Auto Setup",
+    "description": "$error_message",
+    "color": 16711680,  // Màu đỏ (hex: #FF0000)
+    "fields": [
+      {
+        "name": "IP Thiết bị",
+        "value": "$device_ip",
+        "inline": true
+      },
+      {
+        "name": "Thời gian",
+        "value": "$current_time",
+        "inline": true
+      }
+    ],
+    "footer": {
+      "text": "Developed by Đặng Gia | Version 1.1 (Beta)"
+    }
+  }]
+}
+EOF
     fi
 }
 
