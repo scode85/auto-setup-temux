@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script tự động cài đặt Termux và tải file Scode666.py với thông báo lỗi qua Discord webhook
+# Script tự động cài đặt Termux và tải file Scode666.py với thông báo qua Discord webhook
 
 # Định nghĩa màu sắc
 GREEN='\033[1;32m'
@@ -10,7 +10,7 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 # Định nghĩa URL webhook (thay YOUR_WEBHOOK_URL bằng URL thực tế từ Discord)
-DISCORD_WEBHOOK_URL="YOUR_WEBHOOK_URL"
+DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/1389259226500563026/C4NAJkV7FJAqxDYSvrkKaqEwYm8bTZ5fvYzv2kvqOJ-eDOmT4Ph9nweTy_0ZsBg8-sBR"
 
 # Hàm hiển thị hiệu ứng loading
 show_loading() {
@@ -53,7 +53,7 @@ send_discord_error() {
   "embeds": [{
     "title": "❌ Lỗi trong Termux Auto Setup",
     "description": "$error_message",
-    "color": 16711680,  // Màu đỏ (hex: #FF0000)
+    "color": 16711680,  // Màu đỏ (#FF0000)
     "fields": [
       {
         "name": "IP Thiết bị",
@@ -75,6 +75,38 @@ EOF
     fi
 }
 
+# Hàm gửi thông báo thành công qua Discord webhook với embed đẹp
+send_discord_success() {
+    local device_ip=$(get_device_ip)
+    local current_time=$(date +"%I:%M %p %Z, %A, %B %d, %Y")
+    if [ -n "$DISCORD_WEBHOOK_URL" ] && [ "$DISCORD_WEBHOOK_URL" != "YOUR_WEBHOOK_URL" ]; then
+        curl -H "Content-Type: application/json" -X POST -d @- "$DISCORD_WEBHOOK_URL" <<EOF > /dev/null 2>&1
+{
+  "embeds": [{
+    "title": "✅ Setup Termux Hoàn Tất",
+    "description": "Quá trình cài đặt và tải file Scode666.py đã thành công!",
+    "color": 65280,  // Màu xanh (#00FF00)
+    "fields": [
+      {
+        "name": "IP Thiết bị",
+        "value": "$device_ip",
+        "inline": true
+      },
+      {
+        "name": "Thời gian",
+        "value": "$current_time",
+        "inline": true
+      }
+    ],
+    "footer": {
+      "text": "Developed by Đặng Gia | Version 1.3 (Beta)"
+    }
+  }]
+}
+EOF
+    fi
+}
+
 # Xóa màn hình trước khi hiển thị
 clear
 
@@ -82,7 +114,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.1 (Beta)    ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.3           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
@@ -126,11 +158,6 @@ else
 fi
 echo ""
 
-# Xóa file cũ trong /sdcard/Download
-show_loading "Xóa file cũ trong /sdcard/Download"
-rm -f /sdcard/Download/tdm3.py /sdcard/Download/sn01.py /sdcard/Download/ld5.py > /dev/null 2>&1
-show_status "Xóa file cũ"
-
 # Tải file mới Scode666.py
 show_loading "Khởi động tải Scode666.py"
 if ! curl -o /sdcard/Download/Scode666.py https://raw.githubusercontent.com/scode85/Tool-golike/refs/heads/main/Scode666.py > /dev/null 2>&1; then
@@ -141,12 +168,17 @@ else
 fi
 echo ""
 
+# Kiểm tra và gửi thông báo thành công nếu không có lỗi
+if [ $? -eq 0 ]; then
+    send_discord_success
+fi
+
 # Màn hình hoàn thành với banner
 clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.1 (Beta)    ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.3           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}         │${NC}"
