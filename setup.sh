@@ -33,37 +33,61 @@ show_status() {
     echo -e "${GREEN}[✅] ${message} hoàn tất!${NC}"
 }
 
-# Hàm lấy IP thiết bị
+# Hàm lấy IP thiết bị một cách đáng tin cậy
 get_device_ip() {
+    local ip=""
+    # Ưu tiên sử dụng ifconfig
     if command -v ifconfig >/dev/null 2>&1; then
-        ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1
+        ip=$(ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1)
+    # Nếu không, thử dùng ip
     elif command -v ip >/dev/null 2>&1; then
-        ip addr show | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1
-    else
-        echo "Không xác định"
+        ip=$(ip addr show | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1)
+    # Fallback: Kiểm tra kết nối mạng và lấy IP từ curl
+    elif command -v curl >/dev/null 2>&1; then
+        ip=$(curl -s ifconfig.me || curl -s icanhazip.com)
     fi
+    # Trả về IP hoặc "Không xác định" nếu không lấy được
+    [ -n "$ip" ] && echo "$ip" || echo "Không xác định"
 }
 
-# Hàm gửi thông báo lỗi qua Telegram
+# Hàm lấy tên thiết bị một cách đáng tin cậy
+get_device_name() {
+    local name=$(hostname 2>/dev/null || echo "Không xác định")
+    # Nếu không lấy được hostname, thử lấy từ môi trường
+    [ "$name" = "Không xác định" ] && name=$(getprop ro.product.device 2>/dev/null || echo "Không xác định")
+    echo "$name"
+}
+
+# Hàm gửi thông báo lỗi qua Telegram với giao diện đẹp
 send_telegram_error() {
     local error_message=$1
     local device_ip=$(get_device_ip)
-    local device_name=$(hostname || echo "Không xác định")
+    local device_name=$(get_device_name)
     local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%H:%M, %d/%m/%Y")
-    local message="❌ *Lỗi trong Termux Auto Setup*\n*Thông báo:* $error_message\n*IP Thiết bị:* $device_ip\n*Tên Thiết bị:* $device_name\n*Thời gian (VN):* $current_time"
-    curl -s -X POST "$TELEGRAM_API_URL" -d chat_id="$TELEGRAM_CHAT_ID" -d text="$message" -d parse_mode="Markdown" > /dev/null 2>&1
+    local message="<b>🚨 Lỗi trong Termux Auto Setup</b>\n\n"
+    message+="📌 <b>Thông báo:</b> $error_message\n"
+    message+="🌐 <b>IP Thiết bị:</b> <code>$device_ip</code>\n"
+    message+="📱 <b>Tên Thiết bị:</b> $device_name\n"
+    message+="⏰ <b>Thời gian (VN):</b> $current_time\n"
+    message+="\n👨‍💻 <i>Developed by Đặng Gia</i>"
+    curl -s -X POST "$TELEGRAM_API_URL" -d chat_id="$TELEGRAM_CHAT_ID" -d text="$message" -d parse_mode="HTML" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${YELLOW}[⚠] Gửi thông báo lỗi Telegram thất bại! Kiểm tra kết nối hoặc thông tin bot.${NC}"
     fi
 }
 
-# Hàm gửi thông báo thành công qua Telegram
+# Hàm gửi thông báo thành công qua Telegram với giao diện đẹp
 send_telegram_success() {
     local device_ip=$(get_device_ip)
-    local device_name=$(hostname || echo "Không xác định")
+    local device_name=$(get_device_name)
     local current_time=$(TZ=Asia/Ho_Chi_Minh date +"%H:%M, %d/%m/%Y")
-    local message="✅ *Setup Termux Hoàn Tất*\n*Thông báo:* Quá trình cài đặt và tải file Scode666.py đã thành công!\n*IP Thiết bị:* $device_ip\n*Tên Thiết bị:* $device_name\n*Thời gian (VN):* $current_time"
-    curl -s -X POST "$TELEGRAM_API_URL" -d chat_id="$TELEGRAM_CHAT_ID" -d text="$message" -d parse_mode="Markdown" > /dev/null 2>&1
+    local message="<b>🎉 Setup Termux Hoàn Tất</b>\n\n"
+    message+="✅ <b>Thông báo:</b> Quá trình cài đặt và tải file Scode666.py đã thành công!\n"
+    message+="🌐 <b>IP Thiết bị:</b> <code>$device_ip</code>\n"
+    message+="📱 <b>Tên Thiết bị:</b> $device_name\n"
+    message+="⏰ <b>Thời gian (VN):</b> $current_time\n"
+    message+="\n👨‍💻 <i>Developed by Đặng Gia</i>"
+    curl -s -X POST "$TELEGRAM_API_URL" -d chat_id="$TELEGRAM_CHAT_ID" -d text="$message" -d parse_mode="HTML" > /dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo -e "${YELLOW}[⚠] Gửi thông báo thành công Telegram thất bại! Kiểm tra kết nối hoặc thông tin bot.${NC}"
     fi
@@ -76,7 +100,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.5           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
@@ -146,7 +170,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.5           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}         │${NC}"
