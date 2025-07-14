@@ -36,15 +36,18 @@ show_status() {
 # Hàm lấy IP thiết bị một cách đáng tin cậy
 get_device_ip() {
     local ip=""
-    # Ưu tiên sử dụng ifconfig
-    if command -v ifconfig >/dev/null 2>&1; then
-        ip=$(ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1)
-    # Nếu không, thử dùng ip
-    elif command -v ip >/dev/null 2>&1; then
-        ip=$(ip addr show | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "255" | head -n 1)
-    # Fallback: Kiểm tra kết nối mạng và lấy IP từ curl
-    elif command -v curl >/dev/null 2>&1; then
-        ip=$(curl -s ifconfig.me || curl -s icanhazip.com)
+    # Ưu tiên lấy IP từ giao diện mạng (wlan0 hoặc eth0)
+    if command -v ip >/dev/null 2>&1; then
+        ip=$(ip addr show wlan0 2>/dev/null | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "127.0.0.1" | head -n 1)
+        [ -z "$ip" ] && ip=$(ip addr show eth0 2>/dev/null | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "127.0.0.1" | head -n 1)
+    fi
+    # Nếu không lấy được, dùng ifconfig
+    if [ -z "$ip" ] && command -v ifconfig >/dev/null 2>&1; then
+        ip=$(ifconfig | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -v "127.0.0.1" | head -n 1)
+    fi
+    # Fallback: Lấy IP công cộng từ API
+    if [ -z "$ip" ] && command -v curl >/dev/null 2>&1; then
+        ip=$(curl -s https://api.ipify.org || curl -s ifconfig.me || curl -s icanhazip.com)
     fi
     # Trả về IP hoặc "Không xác định" nếu không lấy được
     [ -n "$ip" ] && echo "$ip" || echo "Không xác định"
@@ -52,9 +55,7 @@ get_device_ip() {
 
 # Hàm lấy tên thiết bị một cách đáng tin cậy
 get_device_name() {
-    local name=$(hostname 2>/dev/null || echo "Không xác định")
-    # Nếu không lấy được hostname, thử lấy từ môi trường
-    [ "$name" = "Không xác định" ] && name=$(getprop ro.product.device 2>/dev/null || echo "Không xác định")
+    local name=$(getprop ro.product.model 2>/dev/null || hostname 2>/dev/null || echo "Không xác định")
     echo "$name"
 }
 
@@ -100,7 +101,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.5           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
@@ -170,7 +171,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.5           ✨${BOLD}                │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}         │${NC}"
