@@ -1,104 +1,170 @@
 #!/bin/bash
-# Script tự động cài đặt Termux và tải file Scode666.py
+# Script tự động cài đặt Termux - Scode Auto Setup
 
-# Định nghĩa màu sắc
-GREEN='\033[1;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[1;34m'
-CYAN='\033[1;36m'
-BOLD='\033[1m'
+# Định nghĩa màu sắc nâng cao
+WHITE='\033[1;37m'
+CYAN='\033[0;36m'
+LIGHT_CYAN='\033[1;36m'
+LIGHT_GREEN='\033[1;32m'
+LIGHT_YELLOW='\033[1;33m'
+LIGHT_PURPLE='\033[1;35m'
+LIGHT_RED='\033[1;31m'
+BG_LIGHT_BLUE='\033[48;5;45m'
+BG_LIGHT_GREEN='\033[48;5;46m'
+BG_LIGHT_RED='\033[48;5;196m'
 NC='\033[0m' # No Color
 
-# Hàm hiển thị hiệu ứng loading
-show_loading() {
-    local message=$1
-    echo -ne "${BLUE}[✨] ${message} ${NC}"
-    for i in {1..3}; do
-        echo -ne "."
-        sleep 0.1
-    done
-    echo -ne "\r\033[K"
+# Hàm hiển thị banner Scode với gradient màu
+show_start_banner() {
+    clear
+    echo -e "${LIGHT_CYAN}╔══════════════════════════════════════════════════════════╗"
+    echo -e "║${LIGHT_PURPLE} ███████╗${LIGHT_CYAN} ██████╗${LIGHT_GREEN} ██████╗${LIGHT_YELLOW} ██████╗${WHITE} ███████╗ ${LIGHT_CYAN}║"
+    echo -e "║${LIGHT_PURPLE} ██╔════╝${LIGHT_CYAN}██╔════╝${LIGHT_GREEN}██╔═══██╗${LIGHT_YELLOW}██╔══██╗${WHITE}██╔════╝ ${LIGHT_CYAN}║"
+    echo -e "║${LIGHT_PURPLE} ███████╗${LIGHT_CYAN}██║     ${LIGHT_GREEN}██║   ██║${LIGHT_YELLOW}██║  ██║${WHITE}█████╗   ${LIGHT_CYAN}║"
+    echo -e "║${LIGHT_PURPLE} ╚════██║${LIGHT_CYAN}██║     ${LIGHT_GREEN}██║   ██║${LIGHT_YELLOW}██║  ██║${WHITE}██╔══╝   ${LIGHT_CYAN}║"
+    echo -e "║${LIGHT_PURPLE} ███████║${LIGHT_CYAN}╚██████╗${LIGHT_GREEN}╚██████╔╝${LIGHT_YELLOW}██████╔╝${WHITE}███████╗ ${LIGHT_CYAN}║"
+    echo -e "║${LIGHT_PURPLE} ╚══════╝${LIGHT_CYAN} ╚═════╝ ${LIGHT_GREEN}╚═════╝ ${LIGHT_YELLOW}╚═════╝ ${WHITE}╚══════╝ ${LIGHT_CYAN}║"
+    echo -e "╠══════════════════════════════════════════════════════════╣"
+    echo -e "║ ${WHITE}🚀 Scode Auto Setup ${LIGHT_CYAN}                                ║"
+    echo -e "║ ${LIGHT_YELLOW}🔧 Developed by Đặng Gia ${LIGHT_CYAN}                     ║"
+    echo -e "║ ${LIGHT_GREEN}📌 Version 2.0 ${LIGHT_CYAN}                               ║"
+    echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
 }
 
-# Hàm hiển thị trạng thái đơn giản
+# Hàm hiển thị banner hoàn thành
+show_success_banner() {
+    clear
+    echo -e "${LIGHT_GREEN}╔══════════════════════════════════════════════════════════╗"
+    echo -e "║${LIGHT_PURPLE} ███████╗${LIGHT_CYAN} ██████╗${LIGHT_GREEN} ██████╗${LIGHT_YELLOW} ██████╗${WHITE} ███████╗ ${LIGHT_GREEN}║"
+    echo -e "║${LIGHT_PURPLE} ██╔════╝${LIGHT_CYAN}██╔════╝${LIGHT_GREEN}██╔═══██╗${LIGHT_YELLOW}██╔══██╗${WHITE}██╔════╝ ${LIGHT_GREEN}║"
+    echo -e "║${LIGHT_PURPLE} ███████╗${LIGHT_CYAN}██║     ${LIGHT_GREEN}██║   ██║${LIGHT_YELLOW}██║  ██║${WHITE}█████╗   ${LIGHT_GREEN}║"
+    echo -e "║${LIGHT_PURPLE} ╚════██║${LIGHT_CYAN}██║     ${LIGHT_GREEN}██║   ██║${LIGHT_YELLOW}██║  ██║${WHITE}██╔══╝   ${LIGHT_GREEN}║"
+    echo -e "║${LIGHT_PURPLE} ███████║${LIGHT_CYAN}╚██████╗${LIGHT_GREEN}╚██████╔╝${LIGHT_YELLOW}██████╔╝${WHITE}███████╗ ${LIGHT_GREEN}║"
+    echo -e "║${LIGHT_PURPLE} ╚══════╝${LIGHT_CYAN} ╚═════╝ ${LIGHT_GREEN}╚═════╝ ${LIGHT_YELLOW}╚═════╝ ${WHITE}╚══════╝ ${LIGHT_GREEN}║"
+    echo -e "╠══════════════════════════════════════════════════════════╣"
+    echo -e "║ ${BG_LIGHT_GREEN}${WHITE}   🎉 CÀI ĐẶT THÀNH CÔNG - SẴN SÀNG SỬ DỤNG! 🚀   ${NC}${LIGHT_GREEN}   ║"
+    echo -e "╠══════════════════════════════════════════════════════════╣"
+    echo -e "║ ${WHITE}🚀 Scode Auto Setup ${LIGHT_GREEN}                                ║"
+    echo -e "║ ${LIGHT_YELLOW}🔧 Developed by Đặng Gia ${LIGHT_GREEN}                     ║"
+    echo -e "║ ${LIGHT_CYAN}📌 Version 2.0 ${LIGHT_GREEN}                               ║"
+    echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+}
+
+# Hàm hiển thị thanh tiến trình với gradient
+show_progress() {
+    local duration=$1
+    local message=$2
+    local icon=$3
+    
+    echo -ne "${LIGHT_CYAN}[${icon}] ${WHITE}${message} ${NC}["
+    for i in {1..30}; do
+        if [ $i -le 10 ]; then
+            color="${CYAN}"
+        elif [ $i -le 20 ]; then
+            color="${LIGHT_CYAN}"
+        else
+            color="${LIGHT_GREEN}"
+        fi
+        
+        echo -ne "${color}▓${NC}"
+        sleep $duration
+    done
+    echo -e "]"
+}
+
+# Hàm hiển thị trạng thái với màu sắc khác nhau
 show_status() {
     local message=$1
-    echo -e "${CYAN}[⏳] ${message}...${NC}"
-    sleep 0.5  # Thêm độ trễ tự nhiên
-    echo -e "${GREEN}[✅] ${message} hoàn tất!${NC}"
+    local icon=$2
+    local color=$3
+    
+    echo -e "${color}[${icon}] ${WHITE}${message}...${NC}"
+    sleep 0.2
 }
 
-# Xóa màn hình trước khi hiển thị
-clear
+# Hàm xử lý lỗi
+handle_error() {
+    local message=$1
+    echo -e "${LIGHT_RED}╔══════════════════════════════════════════════════════════╗"
+    echo -e "║ ${WHITE}${BG_LIGHT_RED}                    LỖI CÀI ĐẶT!                     ${NC}${LIGHT_RED}║"
+    echo -e "╠══════════════════════════════════════════════════════════╣"
+    echo -e "║ ${LIGHT_YELLOW}✖ ${message} ${LIGHT_RED}                               ║"
+    echo -e "║ ${WHITE}Nguyên nhân có thể do:${LIGHT_RED}                                 ║"
+    echo -e "║ ${LIGHT_YELLOW}• Mất kết nối Internet${LIGHT_RED}                                 ║"
+    echo -e "║ ${LIGHT_YELLOW}• Hết dung lượng lưu trữ${LIGHT_RED}                               ║"
+    echo -e "║ ${LIGHT_YELLOW}• Xung đột gói cài đặt${LIGHT_RED}                                 ║"
+    echo -e "║ ${WHITE}Vui lòng kiểm tra và thử lại!${LIGHT_RED}                           ║"
+    echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
+    exit 1
+}
 
-# Hiển thị tiêu đề trong khung đẹp với Developed by xuống dưới
-echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
-echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
-echo ""
+# Hàm kiểm tra lỗi sau mỗi lệnh
+check_error() {
+    if [ $? -ne 0 ]; then
+        handle_error "$1"
+    fi
+}
+
+# Hiển thị banner đầu
+show_start_banner
 
 # Cập nhật và nâng cấp Termux
-show_loading "Khởi động cập nhật Termux"
-if ! (yes | pkg update > /dev/null 2>&1 && yes | pkg upgrade -y > /dev/null 2>&1); then
-    echo -e "${YELLOW}[⚠] Cập nhật Termux thất bại! Kiểm tra kết nối mạng.${NC}"
-    exit 1
-else
-    show_status "Cập nhật Termux"
-fi
+show_progress 0.03 "Khởi động cập nhật hệ thống" "🔄"
+show_status "Cập nhật gói hệ thống" "⏳" "${LIGHT_CYAN}"
+pkg update -y > /dev/null 2>&1
+check_error "Không thể cập nhật danh sách gói"
+pkg upgrade -y > /dev/null 2>&1
+check_error "Không thể nâng cấp hệ thống"
+echo -e "${LIGHT_GREEN}[✓] Cập nhật hệ thống hoàn tất!${NC}"
 echo ""
 
 # Cấp quyền truy cập bộ nhớ
-show_loading "Khởi động cấp quyền lưu trữ"
-if ! echo "y" | termux-setup-storage > /dev/null 2>&1; then
-    echo -e "${YELLOW}[⚠] Cấp quyền lưu trữ thất bại! Cấp quyền thủ công qua termux-setup-storage.${NC}"
-    exit 1
-else
-    show_status "Cấp quyền lưu trữ"
-fi
+show_progress 0.02 "Yêu cầu quyền lưu trữ" "🔑"
+show_status "Cấp quyền lưu trữ" "💾" "${LIGHT_PURPLE}"
+termux-setup-storage <<< "y" > /dev/null 2>&1
+check_error "Không thể cấp quyền truy cập bộ nhớ"
+echo -e "${LIGHT_GREEN}[✓] Cấp quyền lưu trữ hoàn tất!${NC}"
 echo ""
 
 # Cài đặt các gói cần thiết
-show_loading "Khởi động cài đặt gói"
-if ! yes | pkg install python tsu libexpat openssl -y > /dev/null 2>&1; then
-    echo -e "${YELLOW}[⚠] Cài đặt gói thất bại! Kiểm tra gói python, tsu, libexpat, openssl.${NC}"
-    exit 1
-else
-    show_status "Cài đặt gói"
-fi
+show_progress 0.02 "Chuẩn bị cài đặt gói" "📦"
+show_status "Cài đặt gói hệ thống" "⚙️" "${LIGHT_YELLOW}"
+pkg install -y python tsu libexpat openssl > /dev/null 2>&1
+check_error "Cài đặt gói hệ thống thất bại"
+echo -e "${LIGHT_GREEN}[✓] Cài đặt gói hệ thống hoàn tất!${NC}"
 echo ""
 
 # Cài đặt các thư viện Python
-show_loading "Khởi động cài đặt thư viện Python"
-if ! pip install requests Flask colorama aiohttp psutil crypto pycryptodome prettytable loguru rich pytz tqdm pyjwt pystyle cloudscraper > /dev/null 2>&1; then
-    echo -e "${YELLOW}[⚠] Cài đặt thư viện Python thất bại! Kiểm tra kết nối mạng hoặc quyền truy cập.${NC}"
-    exit 1
-else
-    show_status "Cài đặt thư viện Python"
-fi
+show_progress 0.01 "Thiết lập môi trường Python" "🐍"
+show_status "Cài đặt thư viện Python" "📚" "${LIGHT_CYAN}"
+pip install requests Flask colorama aiohttp psutil crypto pycryptodome prettytable loguru rich pytz tqdm pyjwt pystyle cloudscraper > /dev/null 2>&1
+check_error "Cài đặt thư viện Python thất bại"
+echo -e "${LIGHT_GREEN}[✓] Cài đặt thư viện Python hoàn tất!${NC}"
 echo ""
 
-# Tải file mới Scode666.py từ GitHub
-SCODE666_URL="https://raw.githubusercontent.com/scode85/Tool-golike/refs/heads/main/Scode666.py"  # Link mới
-show_loading "Khởi động tải Scode666.py"
-if ! curl -s -o /sdcard/Download/Scode666.py "$SCODE666_URL" > /dev/null 2>&1; then
-    echo -e "${YELLOW}[⚠] Tải Scode666.py thất bại! Kiểm tra URL hoặc kết nối mạng.${NC}"
-    exit 1
-else
-    echo -e "${GREEN}[✅] Đã tải Scode666.py!${NC}"
-fi
+# Tải file về /sdcard/Download
+show_progress 0.01 "Kết nối kho lưu trữ" "📡"
+show_status "Tải Scode666.py" "⬇️" "${LIGHT_PURPLE}"
+curl -o /sdcard/Download/Scode666.py https://raw.githubusercontent.com/scode85/Tool-golike/refs/heads/main/Scode666.py > /dev/null 2>&1
+check_error "Tải Scode666.py thất bại"
+echo -e "${LIGHT_GREEN}[✓] Tải Scode666.py hoàn tất!${NC}"
 echo ""
 
-# Màn hình hoàn thành với banner
-clear
-echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP     ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia ✨${BOLD}                │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.4           ✨${BOLD}                │${NC}"
-echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
-echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
-echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}         │${NC}"
-echo -e "${CYAN} ╘════════════════════════════════════════════╛${NC}"
-echo -e "${BLUE}📦 Khởi động tool với lệnh sau:${NC}"
-echo -e "${YELLOW}   ➜ cd /sdcard/Download && python Scode666.py${NC}"
+# Hiển thị banner hoàn thành
+show_success_banner
+
+# Hiển thị hướng dẫn sử dụng
+echo -e "${LIGHT_CYAN}╔══════════════════════════════════════════════════════════╗"
+echo -e "║ ${BG_LIGHT_BLUE}${WHITE}                    🚀 LỆNH KHỞI CHẠY                    ${NC}${LIGHT_CYAN}║"
+echo -e "╠══════════════════════════════════════════════════════════╣"
+echo -e "║ ${LIGHT_YELLOW}1. ${LIGHT_PURPLE}cd /sdcard/Download ${LIGHT_CYAN}                               ║"
+echo -e "║ ${LIGHT_YELLOW}2. ${LIGHT_GREEN}python Scode666.py ${LIGHT_CYAN}                               ║"
+echo -e "╚══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${LIGHT_PURPLE}💡 Mẹo: ${WHITE}Bạn có thể chạy trực tiếp bằng cách nhập lệnh đầy đủ:"
+echo -e "${LIGHT_YELLOW}   python /sdcard/Download && python Scode666.py"
+echo ""
+echo -e "${LIGHT_GREEN}✅ Mọi quá trình đã hoàn tất thành công!"
+echo -e "${LIGHT_CYAN}💖 Cảm ơn bạn đã sử dụng Scode Auto Setup!${NC}"
