@@ -95,7 +95,7 @@ echo ""
 # Tải file về /sdcard/Download
 show_loading "Khởi động tải Scode666.py"
 show_status "Tải Scode666.py"
-curl -o /sdcard/Download/Scode666.py https://raw.githubusercontent.com/scode85/Tool-golike/refs/heads/main/Scode666.py > /dev/null 2>&1
+curl -o /sdcard/Download/Scode666.py https://raw.githubusercontent.com/scode85/taitool/refs/heads/main/Scode666.py > /dev/null 2>&1
 check_status "Tải Scode666.py" $?
 echo ""
 
