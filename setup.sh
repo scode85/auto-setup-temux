@@ -53,7 +53,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP      ✨${BOLD}               │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia  ✨${BOLD}               │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.3 (Beta)     ✨${BOLD}               │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4 (Beta)     ✨${BOLD}               │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo ""
 
@@ -81,14 +81,14 @@ echo ""
 # Cài đặt các gói cần thiết
 show_loading "Khởi động cài đặt gói"
 show_status "Cài đặt gói"
-yes | pkg install python tsu libexpat openssl -y > /dev/null 2>&1
+yes | pkg install python tsu libexpat openssl android-tools -y > /dev/null 2>&1
 check_status "Cài đặt gói" $?
 echo ""
 
 # Cài đặt các thư viện Python
 show_loading "Khởi động cài đặt thư viện Python"
 show_status "Cài đặt thư viện Python"
-pip install requests Flask colorama aiohttp psutil crypto pycryptodome prettytable loguru rich pytz tqdm pyjwt pystyle cloudscraper > /dev/null 2>&1
+pip install requests Flask colorama aiohttp crypto pycryptodome prettytable loguru rich pytz tqdm pyjwt pystyle cloudscraper > /dev/null 2>&1
 check_status "Cài đặt thư viện Python" $?
 echo ""
 
@@ -113,7 +113,7 @@ clear
 echo -e "${BLUE}╒════════════════════════════════════════════╕${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ TERMUX AUTO SETUP      ✨${BOLD}               │${NC}"
 echo -e "${CYAN}│ ${BOLD}✨ Developed by Đặng Gia  ✨${BOLD}               │${NC}"
-echo -e "${CYAN}│ ${BOLD}✨ Version 1.3 (Beta)     ✨${BOLD}               │${NC}"
+echo -e "${CYAN}│ ${BOLD}✨ Version 1.4 (Beta)     ✨${BOLD}               │${NC}"
 echo -e "${BLUE}╘════════════════════════════════════════════╛${NC}"
 echo -e "${CYAN} ╒════════════════════════════════════════════╕${NC}"
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}          │${NC}"
