@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script tự động cài đặt Termux và tải file Scode.py
+# Script tự động cài đặt Termux và tải file Scode85.py
 
 # Định nghĩa màu sắc
 GREEN='\033[1;32m'
@@ -93,17 +93,17 @@ check_status "Cài đặt thư viện Python" $?
 echo ""
 
 # Tải file về /sdcard/Download
-show_loading "Khởi động tải Scode.py"
-show_status "Tải Scode.py"
-curl -o /sdcard/Download/Scode.py https://raw.githubusercontent.com/scode85/taitool/refs/heads/main/Scode.py > /dev/null 2>&1
-check_status "Tải Scode.py" $?
+show_loading "Khởi động tải Scode85.py"
+show_status "Tải Scode85.py"
+curl -o /sdcard/Download/Scode85.py https://raw.githubusercontent.com/scode85/taitool/refs/heads/main/Scode85.py > /dev/null 2>&1
+check_status "Tải Scode85.py" $?
 echo ""
 
 # Kiểm tra xem file có tồn tại không
-if [ -f "/sdcard/Download/Scode.py" ]; then
-    echo -e "${GREEN}[✅] Đã tải Scode.py thành công!${NC}"
+if [ -f "/sdcard/Download/Scode85.py" ]; then
+    echo -e "${GREEN}[✅] Đã tải Scode85.py thành công!${NC}"
 else
-    show_error "File Scode.py không tồn tại sau khi tải!"
+    show_error "File Scode85.py không tồn tại sau khi tải!"
     exit 1
 fi
 echo ""
@@ -119,4 +119,4 @@ echo -e "${CYAN} ╒════════════════════
 echo -e "${GREEN} │ ${BOLD}Setup Hoàn Tất Có Thể Sử Dụng Ngay${BOLD}          │${NC}"
 echo -e "${CYAN} ╘════════════════════════════════════════════╛${NC}"
 echo -e "${BLUE}📦 Khởi động tool với lệnh sau:${NC}"
-echo -e "${YELLOW}   ➜ cd /sdcard/Download && python Scode.py${NC}"
+echo -e "${YELLOW}   ➜ cd /sdcard/Download && python Scode85.py${NC}"
